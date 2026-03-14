@@ -1,0 +1,35 @@
+.about-section {
+  padding: var(--section-padding);
+}
+
+.section-header {
+  margin-bottom: 60px;
+}
+
+.header-line {
+  width: 100px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-cyan), transparent);
+  margin-top: 10px;
+}
+
+.about-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.about-text p {
+  font-size: 1.1rem;
+  color: #1A1A1A;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+@media (max-width: 992px) {
+  .about-grid {
+    padding: 0 20px;
+  }
+}
