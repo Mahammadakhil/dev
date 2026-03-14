@@ -8,10 +8,47 @@ const Contact = () => {
     message: ''
   });
 
-  const handleSubmit = (e) => {
+  const [status, setStatus] = useState('');
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    alert('Thank you for reaching out, Akhil will get back to you soon!');
+    setStatus('Sending...');
+
+    const formDataObj = new FormData(e.target);
+    // TODO: Replace with your actual Web3Forms access key
+    // Get one for free at https://web3forms.com
+    formDataObj.append("access_key", "YOUR_WEB3FORMS_ACCESS_KEY");
+
+    const object = Object.fromEntries(formDataObj);
+    const json = JSON.stringify(object);
+
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
+        body: json
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        setStatus('Sent successfully!');
+        setFormData({ name: '', email: '', message: '' });
+        alert('Thank you for reaching out, Akhil will get back to you soon!');
+      } else {
+        setStatus('Failed to send');
+        console.error("Error from Web3Forms:", data);
+        alert('Something went wrong. Please try again later.');
+      }
+    } catch (error) {
+      console.error("Error submitting form", error);
+      setStatus('Failed to send');
+      alert('Network error. Please try again later.');
+    }
+    
+    setTimeout(() => setStatus(''), 5000);
   };
 
   return (
@@ -28,6 +65,7 @@ const Contact = () => {
               <label className="mono">NAME</label>
               <input 
                 type="text" 
+                name="name"
                 placeholder="Mahammad Akhil"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
@@ -38,6 +76,7 @@ const Contact = () => {
               <label className="mono">EMAIL</label>
               <input 
                 type="email" 
+                name="email"
                 placeholder="mdakhil.ib@gmail.com"
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
@@ -47,6 +86,7 @@ const Contact = () => {
             <div className="form-group">
               <label className="mono">MESSAGE</label>
               <textarea 
+                name="message"
                 placeholder="Write your message here..."
                 rows="5"
                 value={formData.message}
@@ -54,7 +94,14 @@ const Contact = () => {
                 required
               ></textarea>
             </div>
-            <button type="submit" className="btn btn-primary mono">SEND_PACKET</button>
+            <button type="submit" className="btn btn-primary mono" disabled={status === 'Sending...'}>
+              {status === 'Sending...' ? 'SENDING...' : 'SEND_PACKET'}
+            </button>
+            {status && status !== 'Sending...' && (
+              <div className="form-status mono" style={{ marginTop: '15px', color: status === 'Sent successfully!' ? '#4ade80' : '#f87171', fontSize: '0.9rem' }}>
+                {status}
+              </div>
+            )}
           </form>
         </div>
 
