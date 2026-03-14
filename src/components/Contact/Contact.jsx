@@ -10,43 +10,23 @@ const Contact = () => {
 
   const [status, setStatus] = useState('');
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setStatus('Sending...');
 
-    const formDataObj = new FormData(e.target);
-    // TODO: Replace with your actual Web3Forms access key
-    // Get one for free at https://web3forms.com
-    formDataObj.append("access_key", "YOUR_WEB3FORMS_ACCESS_KEY");
+    const { name, email, message } = formData;
+    
+    // Construct the mailto link
+    // We encode the URI components so that spaces and newlines are formatted correctly
+    const subject = encodeURIComponent(`Portfolio Contact from ${name}`);
+    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+    const mailtoLink = `mailto:mdakhil.ib@gmail.com?subject=${subject}&body=${body}`;
 
-    const object = Object.fromEntries(formDataObj);
-    const json = JSON.stringify(object);
-
-    try {
-      const res = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json"
-        },
-        body: json
-      });
-      const data = await res.json();
-      
-      if (data.success) {
-        setStatus('Sent successfully!');
-        setFormData({ name: '', email: '', message: '' });
-        alert('Thank you for reaching out, Akhil will get back to you soon!');
-      } else {
-        setStatus('Failed to send');
-        console.error("Error from Web3Forms:", data);
-        alert('Something went wrong. Please try again later.');
-      }
-    } catch (error) {
-      console.error("Error submitting form", error);
-      setStatus('Failed to send');
-      alert('Network error. Please try again later.');
-    }
+    // Open the user's default email client
+    window.location.href = mailtoLink;
+    
+    // Show a quick success message giving feedback to the user and clear the form
+    setStatus('Email client opened successfully!');
+    setFormData({ name: '', email: '', message: '' });
     
     setTimeout(() => setStatus(''), 5000);
   };
@@ -94,11 +74,11 @@ const Contact = () => {
                 required
               ></textarea>
             </div>
-            <button type="submit" className="btn btn-primary mono" disabled={status === 'Sending...'}>
-              {status === 'Sending...' ? 'SENDING...' : 'SEND_PACKET'}
+            <button type="submit" className="btn btn-primary mono">
+              SEND_PACKET
             </button>
-            {status && status !== 'Sending...' && (
-              <div className="form-status mono" style={{ marginTop: '15px', color: status === 'Sent successfully!' ? '#4ade80' : '#f87171', fontSize: '0.9rem' }}>
+            {status && (
+              <div className="form-status mono" style={{ marginTop: '15px', color: '#4ade80', fontSize: '0.9rem' }}>
                 {status}
               </div>
             )}
